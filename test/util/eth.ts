@@ -1,4 +1,5 @@
-import { ethers } from 'hardhat';
+import hre, { ethers } from 'hardhat';
+import { Contract } from 'ethers';
 
 export function balance(address: string) {
   return ethers.provider.getBalance(address);
@@ -36,4 +37,28 @@ export function toWei(etherAmount: string) {
 export async function totalBalance(addresses: string[]) {
   const balances = await Promise.all(addresses.map(a => balance(a)));
   return balances.reduce((a, b) => a.add(b));
+}
+
+export async function performAs<TContract extends Contract>(
+  actor: string,
+  contract: TContract,
+  action: (contract: TContract) => unknown
+) {
+  // Impersonate the actor
+  await hre.network.provider.request({
+    method: 'hardhat_impersonateAccount',
+    params: [actor]
+  });
+
+  // Perform the action
+  const impersonatedContract = contract.connect(await ethers.getSigner(actor));
+  const result = await action(impersonatedContract as TContract);
+
+  // Stop impersonating the actor
+  await hre.network.provider.request({
+    method: 'hardhat_stopImpersonatingAccount',
+    params: [actor]
+  });
+
+  return result;
 }
