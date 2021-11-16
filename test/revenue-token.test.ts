@@ -33,7 +33,9 @@ describe('RevenueToken', () => {
 
   it('cannot transfer to a non-participant', async () => {
     const alice = randomWallet();
-    await sendEth('1', owner);
+
+    await sendEth('100', owner);
+
     await performAs(owner, rt, async rt => {
       const transfer = rt.transfer(alice, ethers.utils.parseUnits('50', 18));
       await expect(transfer).to.be.revertedWith(
@@ -45,35 +47,37 @@ describe('RevenueToken', () => {
   it('can add a participant with no transfer', async () => {
     const alice = randomWallet();
 
-    await sendEth('1', owner);
+    await sendEth('100', owner);
 
     await performAs(owner, rt, async rt => {
       await rt.addParticipant(alice, '0');
     });
 
     expect(await rt.participants()).to.have.lengthOf(2);
+    expect(await rt.isParticipant(owner)).to.equal(true);
     expect(await rt.isParticipant(alice)).to.equal(true);
-    expect(await rt.balanceOf(alice)).to.equal('0');
     expect(await rt.balanceOf(owner)).to.equal(expand('100'));
+    expect(await rt.balanceOf(alice)).to.equal('0');
   });
 
   it('can add a participant and transfer', async () => {
     const alice = randomWallet();
 
-    await sendEth('1', owner);
+    await sendEth('100', owner);
 
     await performAs(owner, rt, async rt => {
       await rt.addParticipant(alice, expand('50'));
     });
 
     expect(await rt.participants()).to.have.lengthOf(2);
+    expect(await rt.isParticipant(owner)).to.equal(true);
     expect(await rt.isParticipant(alice)).to.equal(true);
-    expect(await rt.balanceOf(alice)).to.equal(expand('50'));
     expect(await rt.balanceOf(owner)).to.equal(expand('50'));
+    expect(await rt.balanceOf(alice)).to.equal(expand('50'));
   });
 
   it('cannot forfeit as the only participant', async () => {
-    await sendEth('1', owner);
+    await sendEth('100', owner);
 
     await performAs(owner, rt, async rt => {
       const forfeit = rt.forfeit();
@@ -81,18 +85,26 @@ describe('RevenueToken', () => {
         'Cannot forfeit as the only participant'
       );
     });
+
+    expect(await rt.participants()).to.have.lengthOf(1);
+    expect(await rt.isParticipant(owner)).to.equal(true);
+    expect(await rt.balanceOf(owner)).to.equal(expand('100'));
   });
 
   it('can forfeit participation to one other', async () => {
     const alice = randomWallet();
 
-    await sendEth('1', owner);
+    await sendEth('100', owner);
 
     await performAs(owner, rt, async rt => {
       await rt.addParticipant(alice, expand('1'));
     });
 
     expect(await rt.participants()).to.have.lengthOf(2);
+    expect(await rt.isParticipant(owner)).to.equal(true);
+    expect(await rt.isParticipant(alice)).to.equal(true);
+    expect(await rt.balanceOf(owner)).to.equal(expand('99'));
+    expect(await rt.balanceOf(alice)).to.equal(expand('1'));
 
     await performAs(owner, rt, async rt => {
       await rt.forfeit();
@@ -100,6 +112,7 @@ describe('RevenueToken', () => {
 
     expect(await rt.participants()).to.have.lengthOf(1);
     expect(await rt.isParticipant(owner)).to.equal(false);
+    expect(await rt.isParticipant(alice)).to.equal(true);
     expect(await rt.balanceOf(owner)).to.equal('0');
     expect(await rt.balanceOf(alice)).to.equal(expand('100'));
   });
@@ -108,7 +121,7 @@ describe('RevenueToken', () => {
     const alice = randomWallet();
     const bob = randomWallet();
 
-    await sendEth('1', owner);
+    await sendEth('100', owner);
 
     await performAs(owner, rt, async rt => {
       await rt.addParticipant(alice, expand('60'));
@@ -116,6 +129,12 @@ describe('RevenueToken', () => {
     });
 
     expect(await rt.participants()).to.have.lengthOf(3);
+    expect(await rt.isParticipant(owner)).to.equal(true);
+    expect(await rt.isParticipant(alice)).to.equal(true);
+    expect(await rt.isParticipant(bob)).to.equal(true);
+    expect(await rt.balanceOf(owner)).to.equal(expand('20'));
+    expect(await rt.balanceOf(alice)).to.equal(expand('60'));
+    expect(await rt.balanceOf(bob)).to.equal(expand('20'));
 
     await performAs(owner, rt, async rt => {
       await rt.forfeit();
@@ -123,6 +142,8 @@ describe('RevenueToken', () => {
 
     expect(await rt.participants()).to.have.lengthOf(2);
     expect(await rt.isParticipant(owner)).to.equal(false);
+    expect(await rt.isParticipant(alice)).to.equal(true);
+    expect(await rt.isParticipant(bob)).to.equal(true);
     expect(await rt.balanceOf(owner)).to.equal('0');
     expect(await rt.balanceOf(alice)).to.equal(expand('75'));
     expect(await rt.balanceOf(bob)).to.equal(expand('25'));
