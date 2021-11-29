@@ -24,6 +24,7 @@
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.4.7",
     "hardhat": "^2.6.6",
+    "hardhat-docgen": "^1.2.0",
     "hardhat-gas-reporter": "^1.0.4",
     "keccak256": "^1.0.3",
     "node-fetch": "^3.0.0",
