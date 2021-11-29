@@ -24,6 +24,10 @@ contract RevenueToken is ERC20 {
 
   // Events
   event Clone(address indexed sender, address cloneAddress);
+  event AddParticipant(address participant, address sender, uint256 amount);
+  event Forfeit(address forfeiter);
+  event DistributeEth();
+  event DistributeToken(address tokenAddress);
 
   constructor(
     string memory name_,
@@ -104,7 +108,9 @@ contract RevenueToken is ERC20 {
     if (!isParticipant(newParticipant)) {
       _participant[newParticipant] = true;
       _participants.push(newParticipant);
-      return transfer(newParticipant, amount);
+      bool transferResult = transfer(newParticipant, amount);
+      emit AddParticipant(newParticipant, _msgSender(), amount);
+      return transferResult;
     }
     return false;
   }
@@ -134,6 +140,7 @@ contract RevenueToken is ERC20 {
     _participants[selfIndex] = _participants[_participants.length - 1];
     _participants.pop();
     _participant[_msgSender()] = false;
+    emit Forfeit(_msgSender());
   }
 
   /// @notice Distributes ETH held in the contract to all participants
@@ -156,6 +163,7 @@ contract RevenueToken is ERC20 {
 
     // Any integer rounding error goes to the caller
     payable(_msgSender()).transfer(forCaller);
+    emit DistributeEth();
   }
 
   /// @notice Distributes the token amount held by the contract to all participants
@@ -179,6 +187,7 @@ contract RevenueToken is ERC20 {
 
     // Any integer rounding error goes to the caller
     token.safeTransfer(_msgSender(), forCaller);
+    emit DistributeToken(_token);
   }
 
   function isParticipant(address participant_) public view returns (bool) {
