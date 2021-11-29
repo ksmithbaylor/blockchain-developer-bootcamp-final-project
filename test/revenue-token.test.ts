@@ -35,6 +35,8 @@ describe('RevenueToken', () => {
   // Make sure the parent contract is never modified by any of the tests, which
   // should be operating on their own clones
   afterEach(async () => {
+    expect(await parentRT.name()).to.equal('Revenue Token Parent');
+    expect(await parentRT.symbol()).to.equal('REV');
     expect(await parentRT.participants()).to.have.lengthOf(1);
     expect(await parentRT.isParticipant(parent)).to.equal(true);
     expect(await parentRT.balanceOf(parent)).to.equal(expand('100'));

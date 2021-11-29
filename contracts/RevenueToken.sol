@@ -50,6 +50,8 @@ contract RevenueToken is ERC20 {
     string memory symbol_,
     address initialAccount
   ) ERC20(name_, symbol_) {
+    _name = name_;
+    _symbol = symbol_;
     _participant[initialAccount] = true;
     _participants.push(initialAccount);
     _mint(initialAccount, totalSupply());
