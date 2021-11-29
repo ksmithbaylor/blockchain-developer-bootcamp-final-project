@@ -7,7 +7,8 @@
     "test": "yarn test:fake && yarn test:forked",
     "test:fake": "yarn hardhat test",
     "test:forked": "FORKED_MAINNET=true yarn hardhat test",
-    "deploy": "yarn hardhat --network ropsten run scripts/deploy.ts"
+    "deploy": "yarn hardhat --network ropsten run scripts/deploy.ts",
+    "copy-artifact": "cp artifacts/contracts/RevenueToken.sol/RevenueToken.json frontend/src/eth/RevenueToken.json"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",

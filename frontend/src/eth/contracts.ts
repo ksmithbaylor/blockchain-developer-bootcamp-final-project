@@ -1,6 +1,6 @@
 import { Contract } from 'ethers';
 import { getProvider } from './connection';
-import RevenueToken from '../../../artifacts/contracts/RevenueToken.sol/RevenueToken.json';
+import RevenueToken from './RevenueToken.json';
 
 const PARENT_CONTRACT_ADDRESS = '0xe9a663185e456311F5766b9C22065805C6176867';
 
