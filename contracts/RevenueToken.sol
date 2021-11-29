@@ -74,21 +74,21 @@ contract RevenueToken is ERC20 {
     return 100000000000000000000;
   }
 
-  function transfer(address recipient, uint256 amount) public override onlyIfParticipant(recipient) returns (bool) {
-    _transfer(_msgSender(), recipient, amount);
-    return true;
+  /// @dev Overridden here to add modifiers
+  function transfer(
+    address recipient,
+    uint256 amount
+  ) public override onlyIfParticipant(recipient) returns (bool) {
+    return super.transfer(recipient, amount);
   }
 
-  function transferFrom(address sender, address recipient, uint256 amount) public virtual override onlyIfParticipant(sender) onlyIfParticipant(recipient) returns (bool) {
-    _transfer(sender, recipient, amount);
-
-    uint256 currentAllowance = _allowances[sender][_msgSender()];
-    require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
-    unchecked {
-      _approve(sender, _msgSender(), currentAllowance - amount);
-    }
-
-    return true;
+  /// @dev Overridden here to add modifiers
+  function transferFrom(
+    address sender,
+    address recipient,
+    uint256 amount
+  ) public virtual override onlyIfParticipant(sender) onlyIfParticipant(recipient) returns (bool) {
+    return super.transferFrom(sender, recipient, amount);
   }
 
   function addParticipant(address newParticipant, uint256 amount) public onlyParticipants returns (bool) {
