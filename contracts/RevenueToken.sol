@@ -20,7 +20,7 @@ contract RevenueToken is ERC20 {
   string private _symbol;
 
   // REV-specific slots
-  mapping (address => bool) public participant;
+  mapping (address => bool) public _participant;
   address[] public _participants;
 
   // Events
@@ -31,7 +31,7 @@ contract RevenueToken is ERC20 {
     string memory symbol_,
     address initialAccount
   ) ERC20(name_, symbol_) {
-    participant[initialAccount] = true;
+    _participant[initialAccount] = true;
     _participants.push(initialAccount);
     _mint(initialAccount, totalSupply());
   }
@@ -56,7 +56,7 @@ contract RevenueToken is ERC20 {
   ) public onlyParent {
     _name = name_;
     _symbol = symbol_;
-    participant[initialAccount] = true;
+    _participant[initialAccount] = true;
     _participants.push(initialAccount);
     _mint(initialAccount, totalSupply());
   }
@@ -93,7 +93,7 @@ contract RevenueToken is ERC20 {
 
   function addParticipant(address newParticipant, uint256 amount) public onlyParticipants returns (bool) {
     if (!isParticipant(newParticipant)) {
-      participant[newParticipant] = true;
+      _participant[newParticipant] = true;
       _participants.push(newParticipant);
       return transfer(newParticipant, amount);
     }
@@ -123,7 +123,7 @@ contract RevenueToken is ERC20 {
 
     _participants[selfIndex] = _participants[_participants.length - 1];
     _participants.pop();
-    participant[_msgSender()] = false;
+    _participant[_msgSender()] = false;
   }
 
   /// @notice Distributes ETH held in the contract to all participants
@@ -171,8 +171,8 @@ contract RevenueToken is ERC20 {
     token.safeTransfer(_msgSender(), forCaller);
   }
 
-  function isParticipant(address _participant) public view returns (bool) {
-    return participant[_participant];
+  function isParticipant(address participant_) public view returns (bool) {
+    return _participant[participant_];
   }
 
   function participants() external view returns (address[] memory) {
@@ -180,12 +180,12 @@ contract RevenueToken is ERC20 {
   }
 
   modifier onlyParticipants() {
-    require(participant[_msgSender()], 'Caller is not a participant');
+    require(_participant[_msgSender()], 'Caller is not a participant');
     _;
   }
 
   modifier onlyIfParticipant(address addr) {
-    require(participant[addr], 'Argument is not a participant');
+    require(_participant[addr], 'Argument is not a participant');
     _;
   }
 
