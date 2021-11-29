@@ -6,7 +6,8 @@
   "scripts": {
     "test": "yarn test:fake && yarn test:forked",
     "test:fake": "yarn hardhat test",
-    "test:forked": "FORKED_MAINNET=true yarn hardhat test"
+    "test:forked": "FORKED_MAINNET=true yarn hardhat test",
+    "deploy": "yarn hardhat --network ropsten run scripts/deploy.ts"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
