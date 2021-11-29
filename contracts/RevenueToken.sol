@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
-// import "hardhat/console.sol";
 
 contract RevenueToken is ERC20 {
   using SafeERC20 for IERC20;
@@ -44,7 +43,8 @@ contract RevenueToken is ERC20 {
     address initialAccount
   ) public returns (address) {
     address cloneAddr = address(this).clone();
-    RevenueToken(payable(cloneAddr)).setCloneParameters(name_, symbol_, initialAccount);
+    RevenueToken(payable(cloneAddr))
+      .setCloneParameters(name_, symbol_, initialAccount);
     emit Clone(_msgSender(), cloneAddr);
     return cloneAddr;
   }
@@ -61,10 +61,16 @@ contract RevenueToken is ERC20 {
     _mint(initialAccount, totalSupply());
   }
 
+  /// @dev Duplicated here because otherwise calls to clones go to the
+  ///        ERC20 contract that the parent inherits from, which does not know
+  ///        about the clone's storage slots
   function name() public view virtual override returns (string memory) {
     return _name;
   }
 
+  /// @dev Duplicated here because otherwise calls to clones go to the
+  ///        ERC20 contract that the parent inherits from, which does not know
+  ///        about the clone's storage slots
   function symbol() public view virtual override returns (string memory) {
     return _symbol;
   }
@@ -91,7 +97,10 @@ contract RevenueToken is ERC20 {
     return super.transferFrom(sender, recipient, amount);
   }
 
-  function addParticipant(address newParticipant, uint256 amount) public onlyParticipants returns (bool) {
+  function addParticipant(
+    address newParticipant,
+    uint256 amount
+  ) public onlyParticipants returns (bool) {
     if (!isParticipant(newParticipant)) {
       _participant[newParticipant] = true;
       _participants.push(newParticipant);
@@ -100,7 +109,8 @@ contract RevenueToken is ERC20 {
     return false;
   }
 
-  /// @notice Removes _msgSender() from the participants, transferring their tokens proportionally to other participants
+  /// @notice Removes _msgSender() from the participants, transferring their
+  ///           tokens proportionally to other participants
   function forfeit() public onlyParticipants {
     require(_participants.length > 1, 'Cannot forfeit as the only participant');
 
@@ -195,9 +205,8 @@ contract RevenueToken is ERC20 {
   }
 
   /// @dev Reads the clone's own bytecode (which contains the address of the parent
-  ///      contract) and returns the parent contract's address to help calculate
-  ///      the create2 address the clone should be at
-  /// @return parent The address of the parent PaymentHub contract that created the clone
+  ///        contract) and returns the parent contract's address
+  /// @return parent The address of the parent contract that created the clone
   function parentAddress() private view returns (address parent) {
     bytes memory addressBytes = new bytes(20);
     assembly {
