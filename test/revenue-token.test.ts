@@ -1,20 +1,24 @@
 import chai, { expect } from 'chai';
 import { solidity } from 'ethereum-waffle';
 import { ethers } from 'hardhat';
+import { BigNumber } from 'ethers';
 import { RevenueToken } from '../typechain';
 import { randomWallet, performAs, sendEth } from './util/eth';
+import { getSupportedTokens, sendToken, TokenContract } from './util/tokens';
 
 chai.use(solidity);
 
 describe('RevenueToken', () => {
   let owner: string;
   let rt: RevenueToken;
+  let supportedTokens: TokenContract[];
 
   beforeEach(async () => {
     const RevenueToken = await ethers.getContractFactory('RevenueToken');
     owner = randomWallet();
-    rt = await RevenueToken.deploy(owner);
+    rt = await RevenueToken.deploy('Revenue Token', 'REV', owner);
     await rt.deployed();
+    supportedTokens = await getSupportedTokens();
   });
 
   it('has a total supply of 100', async () => {
@@ -74,6 +78,19 @@ describe('RevenueToken', () => {
     expect(await rt.isParticipant(alice)).to.equal(true);
     expect(await rt.balanceOf(owner)).to.equal(expand('50'));
     expect(await rt.balanceOf(alice)).to.equal(expand('50'));
+  });
+
+  it('can add a participant multiple times with no ill effects', async () => {
+    const alice = randomWallet();
+
+    await sendEth('100', owner);
+
+    await performAs(owner, rt, async rt => {
+      await rt.addParticipant(alice, expand('1'));
+      expect(await rt.participants()).to.have.lengthOf(2);
+      await rt.addParticipant(alice, expand('1'));
+      expect(await rt.participants()).to.have.lengthOf(2);
+    });
   });
 
   it('cannot forfeit as the only participant', async () => {
@@ -148,8 +165,111 @@ describe('RevenueToken', () => {
     expect(await rt.balanceOf(alice)).to.equal(expand('75'));
     expect(await rt.balanceOf(bob)).to.equal(expand('25'));
   });
+
+  it('can forward all ETH to one participant', async () => {
+    await sendEth('1', rt.address);
+    await sendEth('100', owner);
+
+    expect(await ethers.provider.getBalance(rt.address)).to.equal(expand('1'));
+    expect(await ethers.provider.getBalance(owner)).to.equal(expand('100'));
+
+    let transactionCost = BigNumber.from(0);
+
+    await performAs(owner, rt, async rt => {
+      const tx = await rt.distributeEth();
+      const receipt = await tx.wait();
+      transactionCost = receipt.gasUsed.mul(receipt.effectiveGasPrice);
+    });
+
+    expect(await ethers.provider.getBalance(rt.address)).to.equal(expand('0'));
+    expect(
+      (await ethers.provider.getBalance(owner)).add(transactionCost)
+    ).to.equal(expand('101'));
+  });
+
+  it('can forward all ETH to many participants', async () => {
+    const alice = randomWallet();
+    const bob = randomWallet();
+
+    await sendEth('100', owner);
+
+    await performAs(owner, rt, async rt => {
+      await rt.addParticipant(alice, expand('62'));
+      await rt.addParticipant(bob, expand('24'));
+    });
+
+    await sendEth('1', rt.address);
+
+    const ownerBalanceBefore = await ethers.provider.getBalance(owner);
+    let transactionCost = BigNumber.from(0);
+
+    await performAs(owner, rt, async rt => {
+      const tx = await rt.distributeEth();
+      const receipt = await tx.wait();
+      transactionCost = receipt.gasUsed
+        .mul(receipt.effectiveGasPrice)
+        .add(BigNumber.from(expand('100')).sub(ownerBalanceBefore));
+    });
+
+    expect(await ethers.provider.getBalance(rt.address)).to.equal(expand('0'));
+    expect(
+      (await ethers.provider.getBalance(owner)).add(transactionCost)
+    ).to.equal(expand('100.14'));
+    expect(await ethers.provider.getBalance(alice)).to.equal(expand('0.62'));
+    expect(await ethers.provider.getBalance(bob)).to.equal(expand('0.24'));
+  });
+
+  it('can forward a token to one participant', async () => {
+    await sendEth('100', owner);
+
+    for (const token of supportedTokens) {
+      const d = await token.decimals();
+      await sendToken('100', token, rt.address);
+
+      expect(await token.balanceOf(rt.address)).to.equal(expand('100', d));
+      expect(await token.balanceOf(owner)).to.equal(expand('0', d));
+
+      await performAs(owner, rt, async rt => {
+        await rt.distributeToken(token.address);
+      });
+
+      expect(await token.balanceOf(rt.address)).to.equal(expand('0', d));
+      expect(await token.balanceOf(owner)).to.equal(expand('100', d));
+    }
+  });
+
+  it('can forward a token to many participants', async () => {
+    const alice = randomWallet();
+    const bob = randomWallet();
+
+    await sendEth('100', owner);
+
+    await performAs(owner, rt, async rt => {
+      await rt.addParticipant(alice, expand('12'));
+      await rt.addParticipant(bob, expand('29'));
+    });
+
+    for (const token of supportedTokens) {
+      const d = await token.decimals();
+      await sendToken('100', token, rt.address);
+
+      expect(await token.balanceOf(rt.address)).to.equal(expand('100', d));
+      expect(await token.balanceOf(owner)).to.equal(expand('0', d));
+      expect(await token.balanceOf(alice)).to.equal(expand('0', d));
+      expect(await token.balanceOf(bob)).to.equal(expand('0', d));
+
+      await performAs(owner, rt, async rt => {
+        await rt.distributeToken(token.address);
+      });
+
+      expect(await token.balanceOf(rt.address)).to.equal(expand('0', d));
+      expect(await token.balanceOf(owner)).to.equal(expand('59', d));
+      expect(await token.balanceOf(alice)).to.equal(expand('12', d));
+      expect(await token.balanceOf(bob)).to.equal(expand('29', d));
+    }
+  });
 });
 
-function expand(amount: string) {
-  return ethers.utils.parseUnits(amount, 18);
+function expand(amount: string, decimals: number = 18) {
+  return ethers.utils.parseUnits(amount, decimals);
 }
