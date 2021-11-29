@@ -5,10 +5,12 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/proxy/Clones.sol";
 // import "hardhat/console.sol";
 
 contract RevenueToken is ERC20 {
   using SafeERC20 for IERC20;
+  using Clones for address;
 
   // ERC20 slots
   mapping(address => uint256) private _balances;
@@ -21,11 +23,14 @@ contract RevenueToken is ERC20 {
   mapping (address => bool) public participant;
   address[] public _participants;
 
+  // Events
+  event Clone(address indexed sender, address cloneAddress);
+
   constructor(
-    string memory name,
-    string memory symbol,
+    string memory name_,
+    string memory symbol_,
     address initialAccount
-  ) ERC20(name, symbol) {
+  ) ERC20(name_, symbol_) {
     participant[initialAccount] = true;
     _participants.push(initialAccount);
     _mint(initialAccount, totalSupply());
@@ -33,7 +38,38 @@ contract RevenueToken is ERC20 {
 
   receive() external payable {}
 
-  /// @notice each unit represents a 1% share, so the max is 100
+  function clone(
+    string memory name_,
+    string memory symbol_,
+    address initialAccount
+  ) public returns (address) {
+    address cloneAddr = address(this).clone();
+    RevenueToken(payable(cloneAddr)).setCloneParameters(name_, symbol_, initialAccount);
+    emit Clone(_msgSender(), cloneAddr);
+    return cloneAddr;
+  }
+
+  function setCloneParameters(
+    string memory name_,
+    string memory symbol_,
+    address initialAccount
+  ) public onlyParent {
+    _name = name_;
+    _symbol = symbol_;
+    participant[initialAccount] = true;
+    _participants.push(initialAccount);
+    _mint(initialAccount, totalSupply());
+  }
+
+  function name() public view virtual override returns (string memory) {
+    return _name;
+  }
+
+  function symbol() public view virtual override returns (string memory) {
+    return _symbol;
+  }
+
+  /// @notice each unit represents a 1% share, so the max is 100 (with 18 decimals)
   function totalSupply() public pure override returns (uint256) {
     return 100000000000000000000;
   }
@@ -153,4 +189,20 @@ contract RevenueToken is ERC20 {
     _;
   }
 
+  modifier onlyParent() {
+    require(_msgSender() == parentAddress(), 'May only be called from cloning contract');
+    _;
+  }
+
+  /// @dev Reads the clone's own bytecode (which contains the address of the parent
+  ///      contract) and returns the parent contract's address to help calculate
+  ///      the create2 address the clone should be at
+  /// @return parent The address of the parent PaymentHub contract that created the clone
+  function parentAddress() private view returns (address parent) {
+    bytes memory addressBytes = new bytes(20);
+    assembly {
+      extcodecopy(address(), addressBytes, 10, 20)
+      parent := mload(sub(addressBytes, 12))
+    }
+  }
 }

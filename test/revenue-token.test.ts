@@ -9,16 +9,58 @@ import { getSupportedTokens, sendToken, TokenContract } from './util/tokens';
 chai.use(solidity);
 
 describe('RevenueToken', () => {
+  let parent: string;
   let owner: string;
+  let parentRT: RevenueToken;
   let rt: RevenueToken;
   let supportedTokens: TokenContract[];
 
-  beforeEach(async () => {
+  before(async () => {
     const RevenueToken = await ethers.getContractFactory('RevenueToken');
-    owner = randomWallet();
-    rt = await RevenueToken.deploy('Revenue Token', 'REV', owner);
-    await rt.deployed();
+    parent = randomWallet();
+    parentRT = await RevenueToken.deploy('Revenue Token Parent', 'REV', parent);
+    await parentRT.deployed();
     supportedTokens = await getSupportedTokens();
+  });
+
+  beforeEach(async () => {
+    owner = randomWallet();
+    const cloneTx = await parentRT.clone('My Business', 'BIZ', owner);
+    const cloneReceipt = await cloneTx.wait();
+    const cloneEvent = cloneReceipt.events?.find(e => e.event == 'Clone');
+    const clone = cloneEvent?.args?.cloneAddress;
+    rt = parentRT.attach(clone);
+  });
+
+  // Make sure the parent contract is never modified by any of the tests, which
+  // should be operating on their own clones
+  afterEach(async () => {
+    expect(await parentRT.participants()).to.have.lengthOf(1);
+    expect(await parentRT.isParticipant(parent)).to.equal(true);
+    expect(await parentRT.balanceOf(parent)).to.equal(expand('100'));
+  });
+
+  it('cannot set clone parameters from any address', async () => {
+    await sendEth('100', owner);
+
+    await performAs(owner, rt, async rt => {
+      const setParams = rt.setCloneParameters('oops', 'ohno', randomWallet());
+      await expect(setParams).to.be.revertedWith(
+        'May only be called from cloning contract'
+      );
+    });
+  });
+
+  it('has a total supply of 100', async () => {
+    expect(await rt.totalSupply()).to.equal(expand('100'));
+  });
+
+  it('has the right name', async () => {
+    expect(await rt.name()).to.equal('My Business');
+  });
+
+  it('has the right symbol', async () => {
+    expect(await rt.symbol()).to.equal('BIZ');
   });
 
   it('has a total supply of 100', async () => {
