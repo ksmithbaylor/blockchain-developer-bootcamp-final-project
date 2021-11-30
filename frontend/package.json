@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "serve": "vite preview"
   },
   "dependencies": {
@@ -11,7 +11,8 @@
     "ethers": "^5.5.1",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
-    "styled-components": "^5.3.3"
+    "styled-components": "^5.3.3",
+    "zustand": "^3.6.5"
   },
   "devDependencies": {
     "@types/node": "^16.11.10",

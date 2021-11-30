@@ -1,13 +1,11 @@
 import { useEffect } from 'react';
 import { useEthers, ChainId } from '@usedapp/core';
 import styled from 'styled-components';
+import { useStore } from '../store';
 import { Button } from './Button';
 
-type Props = {
-  onConnectionChange: (connected: boolean) => void;
-};
-
-export function Connector({ onConnectionChange }: Props) {
+export function Connector() {
+  const actions = useStore(store => store.actions);
   const { activateBrowserWallet, deactivate, account, chainId } = useEthers();
   const connectedToRopsten = !!account && chainId === ChainId.Ropsten;
 
@@ -27,8 +25,12 @@ export function Connector({ onConnectionChange }: Props) {
   };
 
   useEffect(() => {
-    onConnectionChange(connectedToRopsten);
-  }, [connectedToRopsten]);
+    if (connectedToRopsten && account) {
+      actions.connected(account);
+    } else {
+      actions.disconnected();
+    }
+  }, [connectedToRopsten, account]);
 
   if (!account) {
     return (
