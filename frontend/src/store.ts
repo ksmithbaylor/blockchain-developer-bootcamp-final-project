@@ -3,9 +3,8 @@ import { combine } from 'zustand/middleware';
 import { Contract, utils } from 'ethers';
 import {
   getParentContract,
-  clonesFor,
   getCloneContract,
-  balancesFor
+  clonesFor
 } from './eth/contracts';
 
 export type StoreState = {
@@ -13,7 +12,9 @@ export type StoreState = {
   parentContract: Contract | null;
   account: string | null;
   clones: string[];
-  balances: Record<string, string>;
+  activeClone: string | null;
+  tokens: string[];
+  pendingTx: string | null;
 };
 
 const initialState: StoreState = {
@@ -21,7 +22,9 @@ const initialState: StoreState = {
   parentContract: null,
   account: null,
   clones: [],
-  balances: {}
+  activeClone: null,
+  tokens: [],
+  pendingTx: null
 };
 
 export const useStore = create(
@@ -39,8 +42,26 @@ export const useStore = create(
         if (account) {
           const clones = await clonesFor(account);
           set({ clones });
-          set({ balances: await balancesFor(clones, account) });
         }
+      },
+      selectClone: (address: string | null) => {
+        set({ activeClone: address });
+      },
+      addParticipant: async (params: {
+        clone: string;
+        participant: string;
+        amount: string;
+      }) => {
+        const clone = getCloneContract(params.clone);
+        const tx = await clone.addParticipant(
+          params.participant,
+          utils.parseEther(params.amount)
+        );
+        set({ pendingTx: tx });
+        console.log(tx);
+        const receipt = await tx.wait();
+        console.log(receipt);
+        set({ pendingTx: null });
       }
     }
   }))

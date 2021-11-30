@@ -3,54 +3,66 @@ import { useToken, useTokenBalance } from '@usedapp/core';
 import styled from 'styled-components';
 import { EtherscanLink } from './EtherscanLink';
 import { useStore } from '../store';
-import { abi } from '../eth/contracts';
 
 export function CloneTable() {
   const clones = useStore(store => store.clones);
-  const balances = useStore(store => store.balances);
+  const activeClone = useStore(store => store.activeClone);
+
+  if (clones.length === 0) {
+    return null;
+  }
 
   return (
-    <TableContainer>
-      <thead>
-        <TableRow $noHover>
-          <TableHeader>Address</TableHeader>
-          <TableHeader>Name</TableHeader>
-          <TableHeader>Symbol</TableHeader>
-          <TableHeader>Balance</TableHeader>
-        </TableRow>
-      </thead>
-      <tbody>
-        {clones.map(clone => (
-          <CloneRow key={clone} address={clone} balance={balances[clone]} />
-        ))}
-      </tbody>
-    </TableContainer>
+    <>
+      <h2>
+        Revenue Tokens <Small>(Click to select)</Small>
+      </h2>
+      <TableContainer>
+        <thead>
+          <TableRow $noHover>
+            <TableHeader>Address</TableHeader>
+            <TableHeader>Name</TableHeader>
+            <TableHeader>Symbol</TableHeader>
+            <TableHeader>Balance</TableHeader>
+          </TableRow>
+        </thead>
+        <tbody>
+          {clones.map(clone => (
+            <CloneRow
+              key={clone}
+              address={clone}
+              active={clone === activeClone}
+            />
+          ))}
+        </tbody>
+      </TableContainer>
+    </>
   );
 }
 
 type CloneRowProps = {
   address: string;
-  balance: string | undefined;
+  active: boolean;
 };
 
-function CloneRow({ address }: CloneRowProps) {
+function CloneRow({ address, active }: CloneRowProps) {
   const account = useStore(store => store.account);
   const tokenInfo = useToken(address);
   const balance = useTokenBalance(address, account);
   const actions = useStore(store => store.actions);
 
   const handleRowClick = () => {
-    alert('clicked ' + address);
+    actions.selectClone(address);
   };
 
-  if (!tokenInfo) {
+  if (!tokenInfo || !balance) {
     return null;
   }
 
   const { name, symbol } = tokenInfo;
 
   return (
-    <TableRow onClick={handleRowClick}>
+    <TableRow onClick={handleRowClick} $active={active}>
       <TableCell>
         <EtherscanLink path={`/address/${address}`}>{address}</EtherscanLink>
       </TableCell>
@@ -66,12 +78,18 @@ const TableCell = styled.td`
   border: none;
 `;
 
-const TableRow = styled.tr<{ $noHover: boolean }>`
+const TableRow = styled.tr<{ $noHover?: boolean; $active?: boolean }>`
   cursor: default;
+  background-color: ${props =>
+    props.$active ? 'var(--color-bg-light)' : 'var(--color-bg-dark)'};
 
   :hover {
     background-color: ${props =>
-      props.$noHover ? 'initial' : 'var(--color-accent-dark)'};
+      props.$noHover
+        ? 'initial'
+        : props.$active
+        ? 'var(--color-accent)'
+        : 'var(--color-accent-dark)'};
   }
 `;
 
@@ -95,6 +113,7 @@ const TableHeader = styled.th`
 
 const TableContainer = styled.table`
   margin-top: 1rem;
+  margin-bottom: 2rem;
   width: 100%;
   border-spacing: 0;
   border: 1px solid var(--color-text-light);
@@ -114,4 +133,11 @@ const TableContainer = styled.table`
       border-bottom-right-radius: var(--border-radius-large);
     }
   }
+`;
+
+const Small = styled.span`
+  font-size: 1rem;
+  font-weight: normal;
+  display: inline-block;
+  margin-left: 0.5em;
 `;

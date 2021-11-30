@@ -53,16 +53,3 @@ export async function clonesFor(account: string) {
 
   return clones;
 }
-
-export async function balancesFor(clones: string[], account: string) {
-  const balances = await Promise.all(
-    clones.map(clone => getCloneContract(clone).balanceOf(account))
-  );
-  return clones.reduce(
-    (bals, clone, i) => ({
-      ...bals,
-      [clone]: utils.formatEther(balances[i])
-    }),
-    {}
-  );
-}

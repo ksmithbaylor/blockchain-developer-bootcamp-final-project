@@ -1,3 +1,5 @@
+import styled from 'styled-components';
+
 const BASE_URL = 'https://ropsten.etherscan.io';
 
 type Props = {
@@ -8,7 +10,7 @@ type Props = {
 export function EtherscanLink({ path, children }: Props) {
   const href = BASE_URL + path;
   return (
-    <a
+    <Link
       href={href}
       target="_blank"
       rel="noopener noreferrer"
@@ -17,6 +19,10 @@ export function EtherscanLink({ path, children }: Props) {
       }}
     >
       {children}
-    </a>
+    </Link>
   );
 }
+
+const Link = styled.a`
+  font-family: var(--font-mono);
+`;
