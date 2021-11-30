@@ -1,72 +1,85 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useEthers, ChainId } from '@usedapp/core';
 import styled from 'styled-components';
-import { haveAccounts, whichChain, initialize } from '../eth/connection';
-import { getParentContract } from '../eth/contracts';
+import { Button } from './Button';
 
 type Props = {
   onConnectionChange: (connected: boolean) => void;
 };
 
 export function Connector({ onConnectionChange }: Props) {
-  const [loading, setLoading] = useState(true);
-  const [connected, setConnected] = useState(false);
-  const [chainId, setChainId] = useState<string | null>(null);
+  const { activateBrowserWallet, deactivate, account, chainId } = useEthers();
+  const connectedToRopsten = !!account && chainId === ChainId.Ropsten;
 
-  const walletInstalled = typeof window.ethereum !== 'undefined';
-  const isOnRopsten = chainId === '0x3';
+  const handleConnectClick = () => {
+    activateBrowserWallet();
+  };
 
-  const handleConnectClick = async () => {
-    try {
-      await initialize();
-      setConnected(true);
-    } catch (err) {
-      console.error(err);
-      setConnected(false);
-    }
+  const handleDisconnectClick = () => {
+    deactivate();
+  };
+
+  const handleSwitchToRopstenClick = async () => {
+    await window.ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: '0x' + ChainId.Ropsten.toString(16) }]
+    });
   };
 
   useEffect(() => {
-    if (walletInstalled) {
-      window.ethereum.on('chainChanged', () => window.location.reload());
-      window.ethereum.on('accountsChanged', (accounts: string[]) => {
-        setConnected(accounts.length > 0);
-      });
+    onConnectionChange(connectedToRopsten);
+  }, [connectedToRopsten]);
 
-      haveAccounts()
-        .then(setConnected)
-        .then(() => whichChain())
-        .then(setChainId)
-        .then(() => {
-          setLoading(false);
-        })
-        .catch(err => {
-          console.error(err);
-          setLoading(false);
-        });
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isOnRopsten) {
-      onConnectionChange(connected);
-    }
-  }, [connected, isOnRopsten]);
-
-  if (!walletInstalled) {
-    return <p>Please install an Ethereum browser wallet to use this dapp</p>;
+  if (!account) {
+    return (
+      <Container>
+        <Button onClick={handleConnectClick}>Connect</Button>
+        <Message>
+          Welcome to the Revenue Token management interface!
+          <br />
+          Click "Connect" to continue.
+        </Message>
+      </Container>
+    );
   }
 
-  if (loading) {
-    return <p>Loading...</p>;
+  if (!connectedToRopsten) {
+    return (
+      <Container>
+        <Button onClick={handleSwitchToRopstenClick}>Switch to Ropsten</Button>
+        <Message>
+          Only Ropsten is supported!
+          <br />
+          Click below to switch networks.
+        </Message>
+      </Container>
+    );
   }
 
-  if (!isOnRopsten) {
-    return <p>Please switch to Ropsten.</p>;
-  }
-
-  if (connected) {
-    return <p>Connected!</p>;
-  }
-
-  return <button onClick={handleConnectClick}>Connect</button>;
+  return (
+    <Container>
+      <Button onClick={handleDisconnectClick}>Disconnect</Button>
+      <Account>{account}</Account>
+    </Container>
+  );
 }
+
+const Container = styled.div`
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const Message = styled.p`
+  margin-top: 1rem;
+  text-align: center;
+`;
+
+const Account = styled.span`
+  margin-top: 1rem;
+  padding: 0.1em 0.4em;
+  font-family: var(--font-mono);
+  background: var(--color-accent);
+  border-radius: var(--border-radius-small);
+`;
