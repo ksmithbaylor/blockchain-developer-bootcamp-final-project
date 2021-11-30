@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useBlockNumber, useBlockMeta } from '@usedapp/core';
 import useInterval from 'react-useinterval';
+import { EtherscanLink } from './EtherscanLink';
 
 export function SyncInfo() {
   const [now, setNow] = useState<Date>(new Date());
@@ -13,15 +14,9 @@ export function SyncInfo() {
   useInterval(() => setNow(new Date()), 100);
 
   return (
-    <p>
+    <p style={{ marginBottom: '1rem' }}>
       Last block was {ageSeconds} seconds ago:{' '}
-      <a
-        href={`https://ropsten.etherscan.io/block/${block}`}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {block}
-      </a>
+      <EtherscanLink path={`/block/${block}`}>{block}</EtherscanLink>
     </p>
   );
 }

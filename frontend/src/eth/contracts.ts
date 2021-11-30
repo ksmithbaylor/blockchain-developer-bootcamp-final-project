@@ -10,6 +10,8 @@ export const CLONE_BYTECODE =
   PARENT_CONTRACT_ADDRESS.replace('0x', '') +
   '5af43d82803e903d91602b57fd5bf3';
 
+export const abi = RevenueToken.abi;
+
 export function getProvider() {
   return new providers.Web3Provider(window.ethereum);
 }

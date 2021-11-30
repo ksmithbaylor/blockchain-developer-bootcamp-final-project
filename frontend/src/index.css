@@ -1,10 +1,13 @@
 :root {
   --color-bg: #233547;
+  --color-bg-dark: #15283a;
   --color-text-light: #ccd1d5;
   --color-text-dark: #020c17;
   --color-primary-bg: #386253;
   --color-primary-bg-light: #527c6d;
+  --color-primary-bg-lighter: #739589;
   --color-accent: #424066;
+  --color-accent-dark: #2b294f;
   --font-variable: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
     'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -44,7 +47,7 @@ body {
 }
 
 a[href] {
-  color: var(--color-primary-bg-light);
+  color: var(--color-primary-bg-lighter);
 }
 
 @keyframes fadeIn {
