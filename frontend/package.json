@@ -12,6 +12,7 @@
     "events": "^3.3.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
+    "react-useinterval": "^1.0.2",
     "styled-components": "^5.3.3",
     "zustand": "^3.6.5"
   },

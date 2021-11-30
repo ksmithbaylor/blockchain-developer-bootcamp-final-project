@@ -43,6 +43,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+a[href] {
+  color: var(--color-primary-bg-light);
+}
+
 @keyframes fadeIn {
   0% {
     opacity: 0;
