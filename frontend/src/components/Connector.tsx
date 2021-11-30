@@ -9,14 +9,6 @@ export function Connector() {
   const { activateBrowserWallet, deactivate, account, chainId } = useEthers();
   const connectedToRopsten = !!account && chainId === ChainId.Ropsten;
 
-  const handleConnectClick = () => {
-    activateBrowserWallet();
-  };
-
-  const handleDisconnectClick = () => {
-    deactivate();
-  };
-
   const handleSwitchToRopstenClick = async () => {
     await window.ethereum.request({
       method: 'wallet_switchEthereumChain',
@@ -35,7 +27,7 @@ export function Connector() {
   if (!account) {
     return (
       <Container>
-        <Button onClick={handleConnectClick}>Connect</Button>
+        <Button onClick={() => activateBrowserWallet()}>Connect</Button>
         <Message>
           Welcome to the Revenue Token management interface!
           <br />
@@ -60,7 +52,7 @@ export function Connector() {
 
   return (
     <Container>
-      <Button onClick={handleDisconnectClick}>Disconnect</Button>
+      <Button onClick={() => deactivate()}>Disconnect</Button>
       <Account>{account}</Account>
     </Container>
   );
