@@ -10,22 +10,22 @@ type Props = {
   clone: string;
 };
 
-export function AddParticipant({ clone }: Props) {
-  const [participant, setParticipant] = useState('');
+export function Transfer({ clone }: Props) {
+  const [receiver, setReceiver] = useState('');
   const [amount, setAmount] = useState('');
   const [dirty, setDirty] = useState(false);
   const cloneContract = getCloneContract(clone);
-  const { state, send } = useContractFunction(cloneContract, 'addParticipant', {
-    transactionName: 'Add Participant'
+  const { state, send } = useContractFunction(cloneContract, 'transfer', {
+    transactionName: 'Transfer'
   });
 
-  const handleAddParticipant = () => {
-    send(participant, utils.parseEther(amount));
+  const handleTransfer = () => {
+    send(receiver, utils.parseEther(amount));
   };
 
   useEffect(() => {
     if (!dirty && state.status === 'Success') {
-      setParticipant('');
+      setReceiver('');
       setAmount('');
       setDirty(true);
     } else if (state.status !== 'Success') {
@@ -37,18 +37,18 @@ export function AddParticipant({ clone }: Props) {
     <td>
       <AddressInput
         type="text"
-        placeholder="new participant address"
-        value={participant}
-        onChange={e => setParticipant(e.target.value)}
+        placeholder="receiving address"
+        value={receiver}
+        onChange={e => setReceiver(e.target.value)}
       />
       <NumberInput
         type="number"
-        placeholder="initial grant amount"
+        placeholder="amount"
         value={amount}
         onChange={e => setAmount(e.target.value)}
       />
       <div>
-        <Button onClick={handleAddParticipant}>Add</Button>{' '}
+        <Button onClick={handleTransfer}>Transfer</Button>{' '}
         {state.status === 'None' || state.status === 'Success' ? null : (
           <>
             ({state.status}{' '}

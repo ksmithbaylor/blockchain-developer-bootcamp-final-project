@@ -5,6 +5,8 @@ import { Button } from './Button';
 import { EtherscanLink } from './EtherscanLink';
 import { Participants } from './Participants';
 import { AddParticipant } from './AddParticipant';
+import { Transfer } from './Transfer';
+import { Forfeit } from './Forfeit';
 import { useStore } from '../store';
 
 export function ActiveClone() {
@@ -54,6 +56,18 @@ export function ActiveClone() {
                 <b>Add Participant</b>:
               </RowTitle>
               <AddParticipant clone={address} />
+            </Row>
+            <Row>
+              <RowTitle>
+                <b>Transfer</b>:
+              </RowTitle>
+              <Transfer clone={address} />
+            </Row>
+            <Row>
+              <RowTitle>
+                <b>Forfeit</b>:
+              </RowTitle>
+              <Forfeit clone={address} />
             </Row>
           </tbody>
         </table>
