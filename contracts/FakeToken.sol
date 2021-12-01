@@ -12,8 +12,10 @@ contract FakeToken is ERC20 {
   /// @param initialBalance The initial total supply
   constructor(
     address initialAccount,
-    uint256 initialBalance
-  ) ERC20("FakeToken", "FAKE") {
+    uint256 initialBalance,
+    string memory name_,
+    string memory symbol_
+  ) ERC20(name_, symbol_) {
     _mint(initialAccount, initialBalance);
   }
 

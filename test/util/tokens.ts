@@ -53,7 +53,12 @@ export async function getSupportedTokens() {
     // Deploy a fake ERC-20 token to interact with in tests
     const FakeToken = await ethers.getContractFactory('FakeToken');
     const whale = randomWallet();
-    const token = await FakeToken.deploy(whale, 1_000_000_000_000);
+    const token = await FakeToken.deploy(
+      whale,
+      1_000_000_000_000,
+      'Fake Token',
+      'FAKE'
+    );
     await token.deployed();
 
     deployedTokens = [{ currency: 'FAKE', tokenAddress: token.address, whale }];
