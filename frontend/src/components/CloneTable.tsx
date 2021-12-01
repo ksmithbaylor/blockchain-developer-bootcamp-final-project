@@ -9,7 +9,7 @@ export function CloneTable() {
   const activeClone = useStore(store => store.activeClone);
 
   if (clones.length === 0) {
-    return null;
+    return <p>You are not participating in any revenue tokens!</p>;
   }
 
   return (
