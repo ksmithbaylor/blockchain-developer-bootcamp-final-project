@@ -1,6 +1,8 @@
 import { utils } from 'ethers';
 import { useToken, useTokenBalance, useEtherBalance } from '@usedapp/core';
 import styled from 'styled-components';
+import { DistributeEth } from './DistributeEth';
+import { DistributeToken } from './DistributeToken';
 import { EtherscanLink } from './EtherscanLink';
 import { CryptoIcon } from './CryptoIcon';
 import { TOKENS } from '../eth/contracts';
@@ -19,20 +21,24 @@ export function TokenHoldings({ clone }: Props) {
   return (
     <td>
       <div>
-        <CryptoIcon symbol="ETH" />
-        <EtherscanLink path="/">
-          <Mono>{'ETH'.padEnd(5)}</Mono>
-        </EtherscanLink>{' '}
-        {utils.formatEther(ethBalance || '0')}
+        <DistributeEth clone={clone}>
+          <CryptoIcon symbol="ETH" />
+          <EtherscanLink path="/">
+            <Mono>{'ETH'.padEnd(5)}</Mono>
+          </EtherscanLink>{' '}
+          {utils.formatEther(ethBalance || '0')}
+        </DistributeEth>
       </div>
       {infos.map((info, i) =>
         !info ? null : (
           <div key={info.symbol}>
-            <CryptoIcon symbol={info.symbol} />
-            <EtherscanLink path={`/address/${TOKENS[i]}`}>
-              <Mono>{info.symbol.padEnd(5)}</Mono>
-            </EtherscanLink>{' '}
-            {utils.formatUnits(balances[i] || '0', info.decimals)}
+            <DistributeToken clone={clone} token={TOKENS[i]}>
+              <CryptoIcon symbol={info.symbol} />
+              <EtherscanLink path={`/address/${TOKENS[i]}`}>
+                <Mono>{info.symbol.padEnd(5)}</Mono>
+              </EtherscanLink>{' '}
+              {utils.formatUnits(balances[i] || '0', info.decimals)}
+            </DistributeToken>
           </div>
         )
       )}
