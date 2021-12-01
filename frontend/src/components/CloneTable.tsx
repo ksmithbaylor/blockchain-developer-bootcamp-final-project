@@ -24,7 +24,7 @@ export function CloneTable() {
             <TableHeader>Address</TableHeader>
             <TableHeader>Name</TableHeader>
             <TableHeader>Symbol</TableHeader>
-            <TableHeader>Balance</TableHeader>
+            <TableHeader>My Share</TableHeader>
           </TableRow>
         </thead>
         <tbody>
@@ -69,7 +69,7 @@ function CloneRow({ address, active }: CloneRowProps) {
       </TableCell>
       <TableCell>{name}</TableCell>
       <TableCell>{symbol}</TableCell>
-      <TableCell>{utils.formatEther(balance)}</TableCell>
+      <TableCell>{utils.formatEther(balance) + '%'}</TableCell>
     </TableRow>
   );
 }

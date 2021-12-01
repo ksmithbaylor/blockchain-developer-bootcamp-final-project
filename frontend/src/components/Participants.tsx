@@ -20,9 +20,7 @@ export function Participants({ address }: Props) {
       {participants.map(({ address, balance }) => (
         <div key={address}>
           <EtherscanLink path={`/address/${address}`}>{address}</EtherscanLink>{' '}
-          {balance
-            ? '(' + utils.formatEther(balance) + ' ' + tokenInfo.symbol + ')'
-            : null}
+          {balance ? '(' + utils.formatEther(balance) + '%)' : null}
         </div>
       ))}
     </td>

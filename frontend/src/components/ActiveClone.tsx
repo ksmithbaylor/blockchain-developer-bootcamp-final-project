@@ -113,7 +113,7 @@ const Row = styled.tr`
 const RowTitle = styled.td`
   padding-right: 1rem;
   vertical-align: top;
-  width: 9rem;
+  width: 10rem;
 `;
 
 const Small = styled.span`

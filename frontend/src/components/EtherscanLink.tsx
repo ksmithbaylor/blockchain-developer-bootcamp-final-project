@@ -4,13 +4,15 @@ const BASE_URL = 'https://ropsten.etherscan.io';
 
 type Props = {
   path: string;
+  variable?: boolean;
   children: React.ReactNode;
 };
 
-export function EtherscanLink({ path, children }: Props) {
+export function EtherscanLink({ path, variable, children }: Props) {
   const href = BASE_URL + path;
   return (
     <Link
+      $variable={variable}
       href={href}
       target="_blank"
       rel="noopener noreferrer"
@@ -23,6 +25,6 @@ export function EtherscanLink({ path, children }: Props) {
   );
 }
 
-const Link = styled.a`
-  font-family: var(--font-mono);
+const Link = styled.a<{ $variable?: boolean }>`
+  font-family: ${props => (props.$variable ? 'inherit' : 'var(--font-mono)')};
 `;
