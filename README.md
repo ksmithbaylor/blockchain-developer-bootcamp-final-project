@@ -54,6 +54,60 @@ Alternately, Bob could have forfeited his entire position instead of
 transferring to just one person. This would distribute his tokens proportionally
 amongst the remaining participants, based on their existing relative holdings.
 
+## Directory Structure
+
+Top-level:
+
+```
+▸ .git/
+▸ artifacts/
+▸ cache/
+▸ contracts/                      $ The smart contracts driving the project
+▸ docs/                           # The generated NatSpec docs
+▸ frontend/                       # The frontend interface (see below)
+▸ node_modules/
+▸ scripts/                        # Deployment scripts
+▾ test/
+  ▸ util/                         # Test helpers
+    revenue-token.test.ts         # All unit tests for the contracts
+▸ typechain/
+  .env                            # A gitignored env file containing secrets
+  .env.example                    # Copy this to create .env
+  .gitignore
+  .prettierignore
+  README.md
+  avoiding_common_attacks.md
+  deployed_address.txt
+  design_pattern_decisions.md
+  final-project-checklist.txt
+  hardhat.config.ts
+  package.json
+  tsconfig.json
+  yarn.lock
+```
+
+Frontend:
+
+```
+▸ dist/                           # Build output that gets deployed
+▸ node_modules/                   # Dependencies
+▾ src/
+  ▸ components/                   # Most React components
+  ▸ eth/                          # Some helpers for dealing with contracts
+    App.tsx                       # The root React component
+    favicon.svg
+    index.css                     # Global styles
+    main.tsx                      # The entry-point for the app
+    store.ts                      # A zustand store that holds global state/logic
+    vite-env.d.ts
+  .gitignore
+  index.html                      # The HTML page that gets built by vite
+  package.json
+  tsconfig.json
+  vite.config.ts
+  yarn.lock
+```
+
 ## Running
 
 First, install dependencies:
@@ -86,3 +140,13 @@ To run the frontend:
 
 Then visit [http://localhost:3000](http://localhost:3000) in a browser with
 Metamask installed.
+
+## Screenshots
+
+Tests:
+
+![image](https://user-images.githubusercontent.com/1709318/144202691-a03455a4-3359-4c9a-b2b8-5a3e3fd8c40d.png)
+
+Frontend:
+
+![image](https://user-images.githubusercontent.com/1709318/144202993-04e14957-4e87-4f0d-a22f-bb1517473e1e.png)
