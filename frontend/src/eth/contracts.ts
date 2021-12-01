@@ -10,6 +10,14 @@ export const CLONE_BYTECODE =
   PARENT_CONTRACT_ADDRESS.replace('0x', '').toLowerCase() +
   '5af43d82803e903d91602b57fd5bf3';
 
+export const TOKENS = [
+  '0x19a455aD4Ea219834f1A1E60bCf1889FeEfc6181',
+  '0x3C0f667532A9AE5D573eB5099556105bb9329c43',
+  '0x5972D5569060287A8B39a0f73B474AADA445d0A3',
+  '0xdEf39AFf18bB8bcaD1845637d32cBc8609667873',
+  '0xc6eb4b20C06AF75580F65BA39ce482906f4EE943'
+];
+
 export const abi = RevenueToken.abi;
 
 export function getProvider() {

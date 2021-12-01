@@ -9,8 +9,6 @@ export type StoreState = {
   account: string | null;
   clones: string[];
   activeClone: string | null;
-  tokens: string[];
-  pendingTx: string | null;
 };
 
 const initialState: StoreState = {
@@ -18,9 +16,7 @@ const initialState: StoreState = {
   parentContract: getParentContract(),
   account: null,
   clones: [],
-  activeClone: null,
-  tokens: [],
-  pendingTx: null
+  activeClone: null
 };
 
 export const useStore = create(

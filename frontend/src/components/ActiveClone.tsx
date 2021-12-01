@@ -3,6 +3,7 @@ import { utils } from 'ethers';
 import { useToken, useTokenBalance } from '@usedapp/core';
 import { Button } from './Button';
 import { EtherscanLink } from './EtherscanLink';
+import { TokenHoldings } from './TokenHoldings';
 import { Participants } from './Participants';
 import { AddParticipant } from './AddParticipant';
 import { Transfer } from './Transfer';
@@ -41,11 +42,15 @@ export function ActiveClone() {
           <tbody>
             <Row>
               <RowTitle>
-                <b>Balance</b>:
+                <b>Holdings</b>:
               </RowTitle>
-              <td>
-                {utils.formatEther(balance)} {symbol}
-              </td>
+              <TokenHoldings clone={address} />
+            </Row>
+            <Row>
+              <RowTitle>
+                <b>My Share</b>:
+              </RowTitle>
+              <td>{utils.formatEther(balance)}%</td>
             </Row>
             <Row>
               <RowTitle>
