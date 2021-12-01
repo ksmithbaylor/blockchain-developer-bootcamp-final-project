@@ -17,6 +17,7 @@ export function CloneTable() {
       <h2>
         Revenue Tokens <Small>(Click to select)</Small>
       </h2>
+      <p>You are participating in these revenue tokens:</p>
       <TableContainer>
         <thead>
           <TableRow $noHover>
@@ -139,5 +140,4 @@ const Small = styled.span`
   font-size: 1rem;
   font-weight: normal;
   display: inline-block;
-  margin-left: 0.5em;
 `;

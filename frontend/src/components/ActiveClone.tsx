@@ -28,13 +28,15 @@ export function ActiveClone() {
 
   return (
     <>
-      <h2>Active Token</h2>
-      <Container>
+      <h2>
+        {name} / {symbol}{' '}
+        <Small>
+          (<EtherscanLink path={`/address/${address}`}>{address}</EtherscanLink>
+          )
+        </Small>
+      </h2>
+      <Container key={address}>
         <CloseButton onClick={handleClose}>Close</CloseButton>
-        <Header>
-          {name} / {symbol} (
-          <EtherscanLink path={`/address/${address}`}>{address}</EtherscanLink>)
-        </Header>
         <table>
           <tbody>
             <Row>
@@ -107,4 +109,10 @@ const RowTitle = styled.td`
   padding-right: 1rem;
   vertical-align: top;
   width: 9rem;
+`;
+
+const Small = styled.span`
+  font-size: 1rem;
+  font-weight: normal;
+  display: inline-block;
 `;
