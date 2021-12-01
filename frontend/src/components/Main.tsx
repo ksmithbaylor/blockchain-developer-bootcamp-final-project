@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { SyncInfo } from './SyncInfo';
+import { CreateClone } from './CreateClone';
 import { CloneTable } from './CloneTable';
 import { ActiveClone } from './ActiveClone';
 import { useStore } from '../store';
@@ -10,6 +11,7 @@ export function Main() {
   return (
     <Container>
       <SyncInfo />
+      <CreateClone />
       <CloneTable />
       {activeClone ? <ActiveClone /> : null}
     </Container>

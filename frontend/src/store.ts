@@ -1,11 +1,7 @@
 import create from 'zustand';
 import { combine } from 'zustand/middleware';
-import { Contract, utils } from 'ethers';
-import {
-  getParentContract,
-  getCloneContract,
-  clonesFor
-} from './eth/contracts';
+import { Contract } from 'ethers';
+import { getParentContract, clonesFor } from './eth/contracts';
 
 export type StoreState = {
   connected: boolean;
@@ -39,29 +35,21 @@ export const useStore = create(
       },
       refresh: async () => {
         const account = state().account;
+        const numClonesBefore = state().clones.length;
         if (account) {
-          const clones = await clonesFor(account);
-          set({ clones });
+          while (true) {
+            const clones = await clonesFor(account);
+            if (clones.length !== numClonesBefore) {
+              set({ clones });
+              break;
+            } else {
+              await sleep(2000);
+            }
+          }
         }
       },
       selectClone: (address: string | null) => {
         set({ activeClone: address });
-      },
-      addParticipant: async (params: {
-        clone: string;
-        participant: string;
-        amount: string;
-      }) => {
-        const clone = getCloneContract(params.clone);
-        const tx = await clone.addParticipant(
-          params.participant,
-          utils.parseEther(params.amount)
-        );
-        set({ pendingTx: tx });
-        console.log(tx);
-        const receipt = await tx.wait();
-        console.log(receipt);
-        set({ pendingTx: null });
       }
     }
   }))
@@ -69,3 +57,4 @@ export const useStore = create(
 
 const actions = useStore.getState().actions;
 const state = () => useStore.getState();
+const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));

@@ -1,4 +1,4 @@
-import { Contract, providers, utils } from 'ethers';
+import { Contract, providers } from 'ethers';
 import { getTokenTransactions } from './etherscan';
 import RevenueToken from './RevenueToken.json';
 
@@ -7,7 +7,7 @@ export const PARENT_CONTRACT_ADDRESS =
 
 export const CLONE_BYTECODE =
   '0x363d3d373d3d3d363d73' +
-  PARENT_CONTRACT_ADDRESS.replace('0x', '') +
+  PARENT_CONTRACT_ADDRESS.replace('0x', '').toLowerCase() +
   '5af43d82803e903d91602b57fd5bf3';
 
 export const abi = RevenueToken.abi;
@@ -46,7 +46,7 @@ export async function clonesFor(account: string) {
 
   const clones = [];
   for (let i = 0; i < tokens.length; i++) {
-    if (bytecodes[i] === CLONE_BYTECODE) {
+    if (bytecodes[i].toLowerCase() === CLONE_BYTECODE.toLowerCase()) {
       clones.push(tokens[i]);
     }
   }
