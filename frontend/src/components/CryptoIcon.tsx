@@ -7,7 +7,7 @@ import CRV from 'cryptocurrency-icons/svg/icon/crv.svg';
 import UNI from 'cryptocurrency-icons/svg/icon/uni.svg';
 import unknownIcon from 'cryptocurrency-icons/svg/black/usd.svg';
 
-const svgs = { ETH, USDC, USDT, DAI, CRV, UNI };
+const svgs: Record<string, string> = { ETH, USDC, USDT, DAI, CRV, UNI };
 
 type Props = {
   symbol: string;
