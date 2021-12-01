@@ -1,7 +1,8 @@
 import { utils } from 'ethers';
-import { useToken, useTokenBalance } from '@usedapp/core';
+import { useToken, useTokenBalance, useEtherBalance } from '@usedapp/core';
 import styled from 'styled-components';
 import { EtherscanLink } from './EtherscanLink';
+import { CryptoIcon } from './CryptoIcon';
 import { TOKENS } from '../eth/contracts';
 
 type Props = {
@@ -13,12 +14,21 @@ export function TokenHoldings({ clone }: Props) {
   // static and never changes for the lifetime of the page.
   const infos = TOKENS.map(token => useToken(token));
   const balances = TOKENS.map(token => useTokenBalance(token, clone));
+  const ethBalance = useEtherBalance(clone);
 
   return (
     <td>
+      <div>
+        <CryptoIcon symbol="ETH" />
+        <EtherscanLink path="/">
+          <Mono>{'ETH'.padEnd(5)}</Mono>
+        </EtherscanLink>{' '}
+        {utils.formatEther(ethBalance || '0')}
+      </div>
       {infos.map((info, i) =>
         !info ? null : (
-          <div>
+          <div key={info.symbol}>
+            <CryptoIcon symbol={info.symbol} />
             <EtherscanLink path={`/address/${TOKENS[i]}`}>
               <Mono>{info.symbol.padEnd(5)}</Mono>
             </EtherscanLink>{' '}
