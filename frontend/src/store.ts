@@ -9,7 +9,7 @@ import {
 
 export type StoreState = {
   connected: boolean;
-  parentContract: Contract | null;
+  parentContract: Contract;
   account: string | null;
   clones: string[];
   activeClone: string | null;
@@ -19,7 +19,7 @@ export type StoreState = {
 
 const initialState: StoreState = {
   connected: false,
-  parentContract: null,
+  parentContract: getParentContract(),
   account: null,
   clones: [],
   activeClone: null,

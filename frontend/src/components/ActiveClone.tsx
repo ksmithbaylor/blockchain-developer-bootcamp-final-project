@@ -1,43 +1,20 @@
-import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { utils } from 'ethers';
-import {
-  useToken,
-  useTokenBalance,
-  useContractCall,
-  useContractCalls,
-  useContractFunction
-} from '@usedapp/core';
+import { useToken, useTokenBalance } from '@usedapp/core';
 import { Button } from './Button';
-import { AddressInput, NumberInput } from './inputs';
 import { EtherscanLink } from './EtherscanLink';
+import { Participants } from './Participants';
+import { AddParticipant } from './AddParticipant';
 import { useStore } from '../store';
-import { getCloneContract } from '../eth/contracts';
 
 export function ActiveClone() {
-  const parentContract = useStore(store => store.parentContract);
   const address = useStore(store => store.activeClone);
   const account = useStore(store => store.account);
   const actions = useStore(store => store.actions);
-  const tokenInfo = useToken(address);
   const balance = useTokenBalance(address, account);
-  const abi = parentContract?.interface;
-  const [participants]: [string[]] =
-    // @ts-ignore
-    (useContractCall({ abi, address, method: 'participants', args: [] }) as [
-      string[]
-    ]) ?? [[]];
-  const balances = useContractCalls(
-    // @ts-ignore
-    participants.map(participant => ({
-      abi,
-      address,
-      method: 'balanceOf',
-      args: [participant]
-    }))
-  );
+  const tokenInfo = useToken(address);
 
-  if (!address || !tokenInfo || !balance || !balances || !participants) {
+  if (!address || !tokenInfo || !balance) {
     return null;
   }
 
@@ -70,22 +47,7 @@ export function ActiveClone() {
               <RowTitle>
                 <b>Participants</b>:
               </RowTitle>
-              <td>
-                {participants.map((participant, i) => (
-                  <div key={participant}>
-                    <EtherscanLink path={`/address/${participant}`}>
-                      {participant}
-                    </EtherscanLink>{' '}
-                    {balances && balances[i]
-                      ? '(' +
-                        utils.formatEther(balances[i]?.[0]) +
-                        ' ' +
-                        symbol +
-                        ')'
-                      : null}
-                  </div>
-                ))}
-              </td>
+              <Participants address={address} />
             </Row>
             <Row>
               <RowTitle>
@@ -97,63 +59,6 @@ export function ActiveClone() {
         </table>
       </Container>
     </>
-  );
-}
-
-type AddParticipantProps = {
-  clone: string;
-};
-
-function AddParticipant({ clone }: AddParticipantProps) {
-  const [participant, setParticipant] = useState('');
-  const [amount, setAmount] = useState('');
-  const [dirty, setDirty] = useState(false);
-  const cloneContract = getCloneContract(clone);
-  const { state, send } = useContractFunction(cloneContract, 'addParticipant', {
-    transactionName: 'Add Participant'
-  });
-
-  const handleAddParticipant = () => {
-    send(participant, utils.parseEther(amount));
-  };
-
-  useEffect(() => {
-    if (!dirty && state.status === 'Success') {
-      setParticipant('');
-      setAmount('');
-      setDirty(true);
-    } else if (state.status !== 'Success') {
-      setDirty(false);
-    }
-  }, [dirty, state.status]);
-
-  return (
-    <td>
-      <AddressInput
-        type="text"
-        placeholder="address"
-        value={participant}
-        onChange={e => setParticipant(e.target.value)}
-      />
-      <NumberInput
-        type="number"
-        placeholder="amount"
-        value={amount}
-        onChange={e => setAmount(e.target.value)}
-      />
-      <div>
-        <Button onClick={handleAddParticipant}>Add</Button>{' '}
-        {state.status === 'None' || state.status === 'Success' ? null : (
-          <>
-            ({state.status}{' '}
-            <EtherscanLink path={`/tx/${state.transaction?.hash}`}>
-              {state.transaction?.hash}
-            </EtherscanLink>
-            )
-          </>
-        )}
-      </div>
-    </td>
   );
 }
 
@@ -179,7 +84,9 @@ const CloseButton = styled(Button)`
 `;
 
 const Row = styled.tr`
-  padding-bottom: 0.5rem;
+  &:not(:first-of-type) td {
+    padding-top: 1rem;
+  }
 `;
 
 const RowTitle = styled.td`
