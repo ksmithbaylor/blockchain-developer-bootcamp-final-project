@@ -168,6 +168,7 @@ contract RevenueToken is ERC20 {
     uint256 balance = balanceOf(_msgSender());
     uint256 remaining = supply - balance;
     uint256 selfIndex;
+    address firstSeen;
 
     for (uint256 i = 0; i < _participants.length; i++) {
       address beneficiary = _participants[i];
@@ -176,10 +177,19 @@ contract RevenueToken is ERC20 {
         continue;
       }
 
+      // Any rounding error will later go to the first participant we see
+      if (firstSeen == address(0)) {
+        firstSeen = beneficiary;
+        continue;
+      }
+
       uint256 bal = balanceOf(beneficiary);
       uint256 portion = (supply * bal / remaining) - bal;
       transfer(beneficiary, portion);
+      balance -= portion;
     }
+
+    transfer(firstSeen, balance);
 
     _participants[selfIndex] = _participants[_participants.length - 1];
     _participants.pop();

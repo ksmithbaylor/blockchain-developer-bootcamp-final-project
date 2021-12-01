@@ -3,7 +3,7 @@ import { getTokenTransactions } from './etherscan';
 import RevenueToken from './RevenueToken.json';
 
 export const PARENT_CONTRACT_ADDRESS =
-  '0xe9a663185e456311f5766b9c22065805c6176867';
+  '0xabC044CfC1730768b8b8b1Ce83B4d97EFc5B0942';
 
 export const CLONE_BYTECODE =
   '0x363d3d373d3d3d363d73' +
