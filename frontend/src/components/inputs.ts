@@ -9,12 +9,12 @@ const common = css`
   margin-bottom: 0.25rem;
 `;
 
-export const AddressInput = styled.input`
+export const WideInput = styled.input`
   ${common};
   width: 28em;
 `;
 
-export const NumberInput = styled.input`
+export const NarrowInput = styled.input`
   ${common};
   width: 14em;
 `;

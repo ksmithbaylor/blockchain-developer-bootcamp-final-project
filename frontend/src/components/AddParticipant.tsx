@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { utils } from 'ethers';
 import { useContractFunction } from '@usedapp/core';
 import { Button } from './Button';
-import { AddressInput, NumberInput } from './inputs';
-import { EtherscanLink } from './EtherscanLink';
+import { WideInput, NarrowInput } from './inputs';
+import { TransactionStatus } from './TransactionStatus';
 import { getCloneContract } from '../eth/contracts';
 
 type Props = {
@@ -35,29 +35,21 @@ export function AddParticipant({ clone }: Props) {
 
   return (
     <td>
-      <AddressInput
+      <WideInput
         type="text"
         placeholder="new participant address"
         value={participant}
         onChange={e => setParticipant(e.target.value)}
       />
-      <NumberInput
+      <NarrowInput
         type="number"
         placeholder="initial grant amount"
         value={amount}
         onChange={e => setAmount(e.target.value)}
       />
       <div>
-        <Button onClick={handleAddParticipant}>Add</Button>{' '}
-        {state.status === 'None' || state.status === 'Success' ? null : (
-          <>
-            ({state.status}{' '}
-            <EtherscanLink path={`/tx/${state.transaction?.hash}`}>
-              {state.transaction?.hash}
-            </EtherscanLink>
-            )
-          </>
-        )}
+        <Button onClick={handleAddParticipant}>Add</Button>
+        <TransactionStatus state={state} />
       </div>
     </td>
   );

@@ -4,12 +4,12 @@ import { EtherscanLink } from './EtherscanLink';
 import { useStore } from '../store';
 
 type Props = {
-  address: string;
+  clone: string;
 };
 
-export function Participants({ address }: Props) {
-  const tokenInfo = useToken(address);
-  const participants = useParticipants(address);
+export function Participants({ clone }: Props) {
+  const tokenInfo = useToken(clone);
+  const participants = useParticipants(clone);
 
   if (!tokenInfo || !participants) {
     return null;
@@ -19,7 +19,9 @@ export function Participants({ address }: Props) {
     <td>
       {participants.map(({ address, balance }) => (
         <div key={address}>
-          <EtherscanLink path={`/address/${address}`}>{address}</EtherscanLink>{' '}
+          <EtherscanLink path={`/token/${clone}?a=${address}`}>
+            {address}
+          </EtherscanLink>{' '}
           {balance ? '(' + utils.formatEther(balance) + '%)' : null}
         </div>
       ))}

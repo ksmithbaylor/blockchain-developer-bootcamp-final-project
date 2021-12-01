@@ -1,6 +1,6 @@
 import { useContractFunction } from '@usedapp/core';
 import { Button } from './Button';
-import { EtherscanLink } from './EtherscanLink';
+import { TransactionStatus } from './TransactionStatus';
 import { getCloneContract } from '../eth/contracts';
 
 type Props = {
@@ -20,16 +20,8 @@ export function Forfeit({ clone }: Props) {
   return (
     <td>
       <div>
-        <Button onClick={handleForfeit}>Forfeit</Button>{' '}
-        {state.status === 'None' || state.status === 'Success' ? null : (
-          <>
-            ({state.status}{' '}
-            <EtherscanLink path={`/tx/${state.transaction?.hash}`}>
-              {state.transaction?.hash}
-            </EtherscanLink>
-            )
-          </>
-        )}
+        <Button onClick={handleForfeit}>Forfeit</Button>
+        <TransactionStatus state={state} />
       </div>
     </td>
   );

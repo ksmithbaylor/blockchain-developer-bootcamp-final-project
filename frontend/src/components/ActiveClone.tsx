@@ -56,7 +56,7 @@ export function ActiveClone() {
               <RowTitle>
                 <b>Participants</b>:
               </RowTitle>
-              <Participants address={address} />
+              <Participants clone={address} />
             </Row>
             <Row>
               <RowTitle>
@@ -85,6 +85,7 @@ export function ActiveClone() {
 
 const Container = styled.div`
   margin-top: 1rem;
+  margin-bottom: 3rem;
   width: 100%;
   border: 1px solid var(--color-text-light);
   border-radius: var(--border-radius-large);

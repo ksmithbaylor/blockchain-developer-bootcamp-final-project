@@ -1,6 +1,6 @@
 import { useContractFunction } from '@usedapp/core';
 import { Button } from './Button';
-import { EtherscanLink } from './EtherscanLink';
+import { TransactionStatus } from './TransactionStatus';
 import { getCloneContract } from '../eth/contracts';
 
 type Props = {
@@ -29,15 +29,7 @@ export function DistributeToken({ clone, token, children }: Props) {
         Distribute
       </Button>
       {children}
-      {state.status === 'None' || state.status === 'Success' ? null : (
-        <span style={{ marginLeft: '2rem' }}>
-          {state.status}... (
-          <EtherscanLink path={`/tx/${state.transaction?.hash}`} variable>
-            Transaction
-          </EtherscanLink>
-          )
-        </span>
-      )}
+      <TransactionStatus state={state} />
     </>
   );
 }
